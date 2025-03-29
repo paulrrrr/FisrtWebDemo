@@ -1,119 +1,356 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monster Survivors - Epic Survival Adventure Game | CurGame.online</title>
-    <meta name="description" content="Play Monster Survivors - an intense survival game where you battle against waves of monsters. Experience thrilling gameplay with stunning graphics and challenging missions.">
-    <link rel="canonical" href="https://curgame.online" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memory Match - Apple Style Card Game</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --primary-bg: #F5F5F7;
+            --primary-text: #1D1D1F;
+            --card-radius: 12px;
+            --shadow: 0 4px 16px rgba(0,0,0,0.1);
+            --primary-blue: #007AFF;
+            --primary-pink: #FF2D55;
+            --primary-green: #34C759;
+        }
+
+        [data-theme="dark"] {
+            --primary-bg: #1D1D1F;
+            --primary-text: #F5F5F7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+            background: var(--primary-bg);
+            color: var(--primary-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            transition: background-color 0.3s ease;
         }
-        .game-container {
-            aspect-ratio: 16/9;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .hero-section {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-            color: white;
-            padding: 4rem 0;
+
+        header {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
             margin-bottom: 2rem;
         }
-        .game-cover {
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            max-width: 800px;
             width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 1rem;
-            margin-bottom: 1rem;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--card-radius);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .card img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .card.matched img {
+            filter: drop-shadow(0 0 8px rgba(52, 199, 89, 0.5));
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--card-radius);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            box-shadow: 
+                inset 0 0 15px rgba(255, 255, 255, 0.1),
+                0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .card-front {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+        }
+
+        .card-back {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+            transform: rotateY(180deg);
+        }
+
+        .card:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 
+                0 8px 24px rgba(0,0,0,0.15),
+                0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .card.matched {
+            background: linear-gradient(145deg, rgba(52, 199, 89, 0.3), rgba(52, 199, 89, 0.2));
+            box-shadow: 
+                0 0 20px rgba(52, 199, 89, 0.3),
+                inset 0 0 15px rgba(52, 199, 89, 0.2);
+        }
+
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--card-radius);
+            border: none;
+            background: var(--primary-blue);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .welcome-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen">
-    <header class="bg-white shadow-sm">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <img src="https://placehold.co/40x40/1a1a1a/ffffff?text=CG" alt="CurGame Logo" class="w-10 h-10 rounded-lg">
-                    <div class="text-2xl font-bold text-gray-900">CurGame.online</div>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <div class="hero-section">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Monster Survivors</h1>
-            <p class="text-xl text-gray-300">Survive the monster waves in this epic adventure game</p>
+<body>
+    <header>
+        <h1>🎴 Memory Match</h1>
+        <div class="stats">
+            <div>Moves: <span id="moves">0</span></div>
+            <div>Matches: <span id="matches">0</span>/8</div>
         </div>
+    </header>
+    <div id="game-board"></div>
+    <div class="controls">
+        <button class="btn" id="restartBtn">🔄 Restart</button>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <img src="https://placehold.co/1200x400/2a2a2a/ffffff?text=Monster+Survivors+Game+Cover" alt="Monster Survivors Game Cover" class="game-cover">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">About The Game</h2>
-            <p class="text-gray-600 mb-4">
-                Monster Survivors is an exhilarating survival game that puts your skills to the ultimate test. Battle against waves of increasingly challenging monsters, upgrade your abilities, and survive as long as possible in this intense action-packed adventure.
-            </p>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">Key Features</h3>
-                <ul class="list-disc list-inside text-gray-600 space-y-2">
-                    <li>Intense monster wave combat system</li>
-                    <li>Character progression and upgrades</li>
-                    <li>Stunning visual effects and animations</li>
-                    <li>Multiple difficulty levels</li>
-                    <li>Engaging gameplay mechanics</li>
-                </ul>
-            </div>
-        </div>
+    <div class="welcome-dialog" id="welcomeDialog">
+        <h2>Memory Match</h2>
+        <p>Find matching pairs of cards</p>
+        <button class="btn" id="startBtn">Start Game</button>
+    </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Play Now</h2>
-            <div class="game-container bg-gray-900 rounded-lg overflow-hidden">
-                <iframe 
-                    src="https://cloud.onliegames.io/games/2025/unity/monster-survivors/index-og.html" 
-                    class="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-                </iframe>
-            </div>
-        </div>
+    <script>
+        class MemoryGame {
+            constructor() {
+                this.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', this.theme);
+                
+                this.moves = 0;
+                this.matches = 0;
+                this.flippedCards = [];
+                this.matchedPairs = new Set();
+                
+                this.init();
+            }
 
-        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Game Controls</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">PC Controls</h3>
-                    <ul class="list-disc list-inside text-gray-600 space-y-1">
-                        <li>WASD - Movement</li>
-                        <li>Mouse - Aim</li>
-                        <li>Left Click - Attack</li>
-                        <li>Space - Special Ability</li>
-                    </ul>
-                </div>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Mobile Controls</h3>
-                    <ul class="list-disc list-inside text-gray-600 space-y-1">
-                        <li>Virtual Joystick - Movement</li>
-                        <li>Tap - Attack</li>
-                        <li>Swipe - Dodge</li>
-                        <li>Special Button - Ability</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </main>
+            init() {
+                this.setupEventListeners();
+                this.showWelcomeDialog();
+            }
 
-    <footer class="bg-white border-t mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <p class="text-center text-gray-500 text-sm">
-                © 2024 CurGame.online - All rights reserved
-            </p>
-        </div>
-    </footer>
+            setupEventListeners() {
+                document.getElementById('startBtn').addEventListener('click', () => {
+                    document.getElementById('welcomeDialog').style.display = 'none';
+                    this.startGame();
+                });
+
+                document.getElementById('restartBtn').addEventListener('click', () => {
+                    this.startGame();
+                });
+            }
+
+            showWelcomeDialog() {
+                document.getElementById('welcomeDialog').style.display = 'block';
+            }
+
+            startGame() {
+                this.moves = 0;
+                this.matches = 0;
+                this.flippedCards = [];
+                this.matchedPairs.clear();
+                this.generateBoard();
+                this.updateUI();
+            }
+
+            generateBoard() {
+                const board = document.getElementById('game-board');
+                board.innerHTML = '';
+                
+                const teams = [
+                    { name: 'Lakers', logo: 'https://cdn.nba.com/logos/nba/1610612747/primary/L/logo.svg' },
+                    { name: 'Warriors', logo: 'https://cdn.nba.com/logos/nba/1610612744/primary/L/logo.svg' },
+                    { name: 'Celtics', logo: 'https://cdn.nba.com/logos/nba/1610612738/primary/L/logo.svg' },
+                    { name: 'Bulls', logo: 'https://cdn.nba.com/logos/nba/1610612741/primary/L/logo.svg' },
+                    { name: 'Heat', logo: 'https://cdn.nba.com/logos/nba/1610612748/primary/L/logo.svg' },
+                    { name: 'Nets', logo: 'https://cdn.nba.com/logos/nba/1610612751/primary/L/logo.svg' },
+                    { name: 'Bucks', logo: 'https://cdn.nba.com/logos/nba/1610612749/primary/L/logo.svg' },
+                    { name: 'Suns', logo: 'https://cdn.nba.com/logos/nba/1610612756/primary/L/logo.svg' }
+                ];
+                const cards = [...teams, ...teams];
+                
+                // Shuffle cards
+                for (let i = cards.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [cards[i], cards[j]] = [cards[j], cards[i]];
+                }
+                
+                cards.forEach((team, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.index = index;
+                    card.dataset.team = team.name;
+                    
+                    const front = document.createElement('div');
+                    front.className = 'card-front';
+                    
+                    const back = document.createElement('div');
+                    back.className = 'card-back';
+                    const img = document.createElement('img');
+                    img.src = team.logo;
+                    img.alt = team.name;
+                    back.appendChild(img);
+                    
+                    card.appendChild(front);
+                    card.appendChild(back);
+                    
+                    card.addEventListener('click', () => this.handleCardClick(card));
+                    board.appendChild(card);
+                });
+            }
+
+            handleCardClick(card) {
+                if (this.flippedCards.length === 2 || 
+                    this.flippedCards.includes(card) || 
+                    this.matchedPairs.has(card.dataset.team)) {
+                    return;
+                }
+
+                card.classList.add('flipped');
+                this.flippedCards.push(card);
+
+                if (this.flippedCards.length === 2) {
+                    this.moves++;
+                    this.checkMatch();
+                }
+
+                this.updateUI();
+            }
+
+            checkMatch() {
+                const [card1, card2] = this.flippedCards;
+                const match = card1.dataset.team === card2.dataset.team;
+
+                if (match) {
+                    this.matches++;
+                    this.matchedPairs.add(card1.dataset.team);
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    this.flippedCards = [];
+                    
+                    if (this.matches === 8) {
+                        setTimeout(() => {
+                            alert('Congratulations! You won!');
+                            this.showWelcomeDialog();
+                        }, 500);
+                    }
+                } else {
+                    setTimeout(() => {
+                        card1.classList.remove('flipped');
+                        card2.classList.remove('flipped');
+                        this.flippedCards = [];
+                    }, 1000);
+                }
+            }
+
+            updateUI() {
+                document.getElementById('moves').textContent = this.moves;
+                document.getElementById('matches').textContent = this.matches;
+            }
+        }
+
+        // 实例化游戏
+        const game = new MemoryGame();
+    </script>
 </body>
 </html> 
